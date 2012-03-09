@@ -10,6 +10,7 @@ class ServiceProviderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $this->subject = new ServiceProvider();
     }
 
     public function testTrue()
