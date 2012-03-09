@@ -6,6 +6,3 @@ php:
 before_script:
  - wget http://getcomposer.org/composer.phar
  - php composer.phar install
-
-notifications:
-    irc: "irc.freenode.org/##hurricane"
