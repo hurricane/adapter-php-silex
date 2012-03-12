@@ -10,7 +10,7 @@ use \Symfony\Component\HttpFoundation\Request;
 use \Symfony\Component\HttpFoundation\Response;
 
 /**
- * Encapsulates useful behavior when briding Symfony components and
+ * Encapsulates useful behavior when bridging Symfony components and
  * Hurricane.
  */
 class HttpFoundationAdapter
@@ -170,7 +170,9 @@ class HttpFoundationAdapter
     public function sendNextResponse(Response $symfonyResponse)
     {
         if ($this->getCurrentRequest() === null) {
-            throw new HttpFoundationAdapter\Exception('Not currently handling any request!');
+            throw new HttpFoundationAdapter\Exception(
+                'Not currently handling a request!'
+            );
         }
 
         $hurricaneHttpResponse = new Tuple(
@@ -225,7 +227,8 @@ class HttpFoundationAdapter
                     $server['HTTPS'] = false;
                 }
             } elseif ($key == 'version') {
-                $server['SERVER_PROTOCOL'] = 'HTTP/' . $value[0] . '.' . $value[1];
+                $server['SERVER_PROTOCOL'] =
+                    'HTTP/' . $value[0] . '.' . $value[1];
             } elseif ($key == 'method') {
                 $server['REQUEST_METHOD'] = $value->getName();
             } elseif ($key == 'headers') {
@@ -236,7 +239,8 @@ class HttpFoundationAdapter
             } elseif ($key == 'path') {
                 $server['REQUEST_URI'] = $value;
                 $parsed = parse_url($value);
-                $server['QUERY_STRING'] = isset($parsed['query']) ? $parsed['query'] : '';
+                $server['QUERY_STRING'] =
+                    isset($parsed['query']) ? $parsed['query'] : '';
                 parse_str($server['QUERY_STRING'], $parsedQuery);
                 $query = $parsedQuery;
                 $attributes = $parsedQuery;
@@ -249,13 +253,21 @@ class HttpFoundationAdapter
                     $content = $value;
                 }
             } else {
-                throw new Exception($key);
+                throw new HttpFoundationAdapter\Exception(
+                    'Unknown key in Hurricane request: ' . $key
+                );
             }
         }
 
-        if (isset($server['HTTP_CONTENT_TYPE']) && $server['HTTP_CONTENT_TYPE'] == 'application/x-www-url-form-encoded') {
+        if (isset($server['HTTP_CONTENT_TYPE'])) {
+            $contentType = $server['HTTP_CONTENT_TYPE'];
+        } else {
+            $contentType = '';
+        }
+        if ($contentType == 'application/x-www-url-form-encoded') {
             parse_str($content, $request);
         }
+
         if (isset($server['HTTP_COOKIE'])) {
             $cookies = parseCookie($server['HTTP_COOKIE']);
         }
