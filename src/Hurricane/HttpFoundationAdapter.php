@@ -148,6 +148,22 @@ class HttpFoundationAdapter
     }
 
     /**
+     * Runs the given closure forever, responding to requests.
+     *
+     * @param callback $callback
+     *
+     * @return void
+     */
+    public function run($callback)
+    {
+        while (true) {
+            $request = $this->getNextRequest();
+            $response = call_user_func($callback, $request);
+            $this->sendNextResponse($response);
+        }
+    }
+
+    /**
      * Get the next HTTP request from Hurricane.
      *
      * @return \Symfony\Component\HttpFoundation\Request

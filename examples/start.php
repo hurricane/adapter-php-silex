@@ -16,8 +16,7 @@ use \Symfony\Component\HttpFoundation\Response;
 use \Hurricane\HttpFoundationAdapter;
 
 $adapter = new HttpFoundationAdapter('127.0.0.1', 3000);
-
-while (true) {
+$adapter->run(function($request) {
     try {
         $routes = new RouteCollection();
         $routes->add('hello', new Route('/', array('_controller' =>
@@ -26,7 +25,6 @@ while (true) {
             }
         )));
 
-        $request = $adapter->getNextRequest();
         $context = new RequestContext();
         $context->fromRequest($request);
         $matcher = new UrlMatcher($routes, $context);
@@ -40,5 +38,5 @@ while (true) {
     } catch (Exception $e) {
         $response = new Response($e->getMessage(), 500, array());
     }
-    $adapter->sendNextResponse($response);
-}
+    return $response;
+});
